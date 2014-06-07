@@ -17,12 +17,12 @@ func NewDecoder(config *Config) *Decoder {
     return (*Decoder)(C.ps_init((*C.cmd_ln_t)(config)))
 }
 
-func (p *Decoder) ProcessRaw(data []byte, number int32, no_search int32, full_utt int32) int32 {
+func (p *Decoder) ProcessRaw(data []int16, number int32, no_search int, full_utt int) int {
     searched := C.ps_process_raw((*C.ps_decoder_t)(p), (*C.int16)(unsafe.Pointer(&data[0])), C.size_t(number), C.int(no_search), C.int(full_utt))
-    return int32(searched)
+    return int(searched)
 }
 
-func (p *Decoder) GetHyp() (result string, score int32, uttid string) {
+func (p *Decoder) GetHyp() (result string, score int, uttid string) {
     var r *C.char
     var s C.int32
     var u *C.char
@@ -30,7 +30,7 @@ func (p *Decoder) GetHyp() (result string, score int32, uttid string) {
     r = C.ps_get_hyp((*C.ps_decoder_t)(p), &s, &u)
 
     result = C.GoString(r)
-    score = int32(s)
+    score = int(s)
     uttid = C.GoString(u)
     return
 }

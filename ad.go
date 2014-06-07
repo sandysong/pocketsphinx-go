@@ -62,17 +62,13 @@ func (rec *Rec) Close() error {
     return nil
 }
 
-func (rec *Rec) Read(buf []int16, max int32) (int32, error) {
-    length := C.ad_read((*C.ad_rec_t)(rec), (*C.int16)(unsafe.Pointer(&buf[0])), C.int32(max))
-    if length < 0 {
-        return 0, errors.New("Cannot read record.")
-    }
-    return int32(length), nil
+func (rec *Rec) Read(buf []int16, max int32) int32 {
+    return int32(C.ad_read((*C.ad_rec_t)(rec), (*C.int16)(unsafe.Pointer(&buf[0])), C.int32(max)))
 }
 
 type ContAd C.cont_ad_t
 
-func initCont(rec *Rec) *ContAd {
+func InitCont(rec *Rec) *ContAd {
     return (*ContAd)(C.cont_ad_init((*C.ad_rec_t)(rec), C.adfunc(C.ad_read)))
 }
 
@@ -84,12 +80,8 @@ func (cont *ContAd) ContCalibrate() error {
     return nil
 }
 
-func (cont *ContAd) ContRead(buf []int16, max int32) (int32, error) {
-    length := C.cont_ad_read((*C.cont_ad_t)(cont), (*C.int16)(unsafe.Pointer(&buf[0])), C.int32(max))
-    if length < 0 {
-        return 0, errors.New("Cannot read cont_ad.")
-    }
-    return int32(length), nil
+func (cont *ContAd) ContRead(buf []int16, max int32) int32 {
+    return int32(C.cont_ad_read((*C.cont_ad_t)(cont), (*C.int16)(unsafe.Pointer(&buf[0])), C.int32(max)))
 }
 
 func (cont *ContAd) ContReadTs() int32 {
@@ -102,4 +94,8 @@ func (cont *ContAd) ContClose() error {
         return errors.New("Cannot close cont_ad.")
     }
     return nil
+}
+
+func (cont *ContAd) Reset() int32 {
+    return int32(C.cont_ad_reset((*C.cont_ad_t)(cont)))
 }
